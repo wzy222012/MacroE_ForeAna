@@ -123,7 +123,7 @@ def model_train(x_train, y_train, x_test, y_test):
                x_test=x_test,
                y_test=y_test,
                hidden_layer=[250],
-               learning_rate_rbm=0.005,
+               learning_rate_rbm=0.0001,
                batch_size_rbm=150,
                n_epochs_rbm=200,
                verbose_rbm=1,
@@ -181,8 +181,9 @@ def forecast_main():
     data_Y = data1.iloc[:, 0]
 
     total_size = np.size(data_Y)
+    print(total_size)
     train_size = int(total_size * 0.7)
-    rolling_size = 20
+    rolling_size = 12
 
     # 导入训练集X_train 和 测试集X_test
     x_train = np.zeros([rolling_size, train_size - rolling_size])
@@ -207,7 +208,7 @@ def forecast_main():
 
     # 对模型进行训练和保存
     #     trained_model, scaler = multioutput(df.values, 0.9, 192, 1, 200, 300, 50)
-    # model_train(x_train, y_train, x_test, y_test)
+    model_train(x_train, y_train, x_test, y_test)
 
     # 调用模型计算
     model = load_model(r'./data/trained_DBN.h5')
@@ -230,11 +231,12 @@ def forecast_main():
     plt.plot(data_Y[train_size: total_size - rolling_size], y_test, 'g', label='real')
     print(pre)
     print(y_test)
+    print(data_Y[train_size: total_size - rolling_size])
     # plt.plot(data_Y[train_size: total_size + 1], y_test, 'b', label='real')
     plt.tick_params(axis='y', labelcolor='k')
     # plt.xticks(range(1, len(x_tick), 5), rotation=45)
     # plt.xticks(range(1, len(data_Y[train_size: total_size + 1]), 5), rotation=45)
-    plt.legend(['prediction', 'real'], bbox_to_anchor=[0, 0.5])
+    plt.legend(['prediction', 'real'], bbox_to_anchor=[0.4, 0.5])
     plt.show()
     return
 
