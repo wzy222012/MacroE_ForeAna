@@ -15,6 +15,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+
 class DBN:
     def __init__(
             self,
@@ -117,6 +118,7 @@ def nday_list(date_start, date_end):
 
     return pd.DataFrame(before_n_days)[0].str[:-9]
 
+
 def model_train(x_train, y_train, x_test, y_test):
     dbn1 = DBN(x_train=x_train,
                y_train=y_train,
@@ -138,6 +140,7 @@ def model_train(x_train, y_train, x_test, y_test):
     dbn1.finetuning()
     dbn1.save()
     return
+
 
 def forecast_main():
     date_start, date_end = '2020-01-11', '2021-06-24'
@@ -168,6 +171,7 @@ def forecast_main():
     max_value1 = np.max(data_la1)
     min_value1 = np.min(data_la1)
     data_la1 = (data_la1 - min_value1) / (max_value1 - min_value1)
+    data_la_train = data_la1
     # max_value2 = np.max(data_la2)
     # min_value2 = np.min(data_la2)
     # data_la2 = (data_la2 - min_value2) / (max_value2 - min_value2)
@@ -180,40 +184,55 @@ def forecast_main():
 
     data_Y = data1.iloc[:, 0]
 
+    # 各种数据长度计算
     total_size = np.size(data_Y)
-    print(total_size)
-    train_size = int(total_size * 0.7)
-    rolling_size = 12
+    exchange_time = 5                                   # 交叉验证份数
+    exchange_size = int(total_size / exchange_time)     # 交叉验证测试集长度
+    train_size = total_size - exchange_size             # 交叉验证训练集长度
+    rolling_size = 12                                   # 滚动长度
 
-    # 导入训练集X_train 和 测试集X_test
-    x_train = np.zeros([rolling_size, train_size - rolling_size])
-    y_train = np.zeros([1, train_size - rolling_size])
-    x_test = np.zeros([rolling_size, total_size - train_size - rolling_size])
-    y_test = np.zeros([1, total_size - train_size - rolling_size])
-    for i in range(train_size - rolling_size):
-        for j in range(rolling_size):
-            x_train[j, i] = data_la1[i+j]
-        y_train[0, i] = data_la1[i+rolling_size]
-    for i in range(total_size - train_size - rolling_size):
-        for j in range(rolling_size):
-            x_test[j, i] = data_la1[train_size + i + j]
-        y_test[0, i] = data_la1[train_size + i + rolling_size]
-    x_train = x_train.T
-    y_train = y_train.T
-    x_test = x_test.T
-    y_test = y_test.T
+    for k in range(exchange_time):
+        # 新建训练集X_train 和 测试集X_test
+        x_train = np.zeros([rolling_size, train_size - rolling_size])
+        y_train = np.zeros([1, train_size - rolling_size])
+        x_test = np.zeros([rolling_size, exchange_size - rolling_size])
+        y_test = np.zeros([1, exchange_size - rolling_size])
 
-    # mae_all = []
-    # mse_all = []
+        # 滚动交叉验证测试集位置
+        data_la_train = data_la1.drop(range(exchange_size * k, exchange_size * (k + 1)))
+        data_la_train = data_la_train.reset_index(drop=True)
+        data_la_test = data_la1[exchange_size * k: exchange_size * (k + 1)]
 
-    # 对模型进行训练和保存
-    #     trained_model, scaler = multioutput(df.values, 0.9, 192, 1, 200, 300, 50)
-    model_train(x_train, y_train, x_test, y_test)
+        # 导入训练集X_train 和 测试集X_test
+        for i in range(train_size - rolling_size):
+            for j in range(rolling_size):
+                x_train[j, i] = data_la_train.iloc[i + j]
+            y_train[0, i] = data_la_train.iloc[i + rolling_size]
+        for i in range(exchange_size - rolling_size):
+            for j in range(rolling_size):
+                x_test[j, i] = data_la_test.iloc[i + j]
+            y_test[0, i] = data_la_test.iloc[i + rolling_size]
 
-    # 调用模型计算
-    model = load_model(r'./data/trained_DBN.h5')
-    pre = model.predict(x_test)
-    pre_max = np.max(pre)
+        # 修下格式
+        x_train = x_train.T
+        y_train = y_train.T
+        x_test = x_test.T
+        y_test = y_test.T
+
+        # 对模型进行训练和保存
+        #     trained_model, scaler = multioutput(df.values, 0.9, 192, 1, 200, 300, 50)
+        model_train(x_train, y_train, x_test, y_test)
+
+        # 调用模型计算
+        model = load_model(r'./data/trained_DBN.h5')
+        pre = model.predict(x_test)
+        if k == 0:
+            pre_size = pre.size
+            predic = np.zeros([pre_size, 1])
+        predic += pre
+        pre_max = np.max(pre)
+    predic /= exchange_time
+    print(predic)
     # for i in range(total_size - train_size):
     #     if pre[i] > pre_max / 2:
     #         pre[i] = 1
@@ -227,11 +246,8 @@ def forecast_main():
     # x_tick = Time_list[train_size:]
     # plt.plot(x_tick, pre, 'r', label='prediction')
     # plt.plot(x_tick, y_test, 'b', label='real')
-    plt.plot(data_Y[train_size: total_size - rolling_size], pre, 'r', label='prediction')
+    plt.plot(data_Y[train_size: total_size - rolling_size], predic, 'r', label='prediction')
     plt.plot(data_Y[train_size: total_size - rolling_size], y_test, 'g', label='real')
-    print(pre)
-    print(y_test)
-    print(data_Y[train_size: total_size - rolling_size])
     # plt.plot(data_Y[train_size: total_size + 1], y_test, 'b', label='real')
     plt.tick_params(axis='y', labelcolor='k')
     # plt.xticks(range(1, len(x_tick), 5), rotation=45)
@@ -239,5 +255,3 @@ def forecast_main():
     plt.legend(['prediction', 'real'], bbox_to_anchor=[0.4, 0.5])
     plt.show()
     return
-
-
