@@ -128,7 +128,8 @@ def weight_inform(df):
 
 '''---------------------------------------------权重组合计算-------------------------------------------------------'''
 
-# 面向最优化目标:需要先建立量化指标才行
+
+# 离差最小的组合权重法
 # 将多种方法得到的几个指标权重加权，得到指标的综合权重
 def weight_comb(df):
     # 指标相关
@@ -169,7 +170,7 @@ def weight_comb(df):
 def weight_add(df):
     # 获取数据 权值
     weight_mix = weight_comb(df)
-    # print(weight_mix)
+    print(weight_mix)
     line = df.shape[0]
     column = df.shape[1]
     df_mix = np.zeros(line)

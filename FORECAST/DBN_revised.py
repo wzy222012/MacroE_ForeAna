@@ -125,7 +125,7 @@ def model_train(x_train, y_train, x_test, y_test):
                x_test=x_test,
                y_test=y_test,
                hidden_layer=[250],
-               learning_rate_rbm=0.0001,
+               learning_rate_rbm=0.0005,
                batch_size_rbm=150,
                n_epochs_rbm=200,
                verbose_rbm=1,
@@ -232,7 +232,6 @@ def forecast_main():
         predic += pre
         pre_max = np.max(pre)
     predic /= exchange_time
-    print(predic)
     # for i in range(total_size - train_size):
     #     if pre[i] > pre_max / 2:
     #         pre[i] = 1
@@ -246,6 +245,7 @@ def forecast_main():
     # x_tick = Time_list[train_size:]
     # plt.plot(x_tick, pre, 'r', label='prediction')
     # plt.plot(x_tick, y_test, 'b', label='real')
+    plt.plot(data_Y[train_size: total_size - rolling_size], pre, 'b', label='predict')
     plt.plot(data_Y[train_size: total_size - rolling_size], predic, 'r', label='prediction')
     plt.plot(data_Y[train_size: total_size - rolling_size], y_test, 'g', label='real')
     # plt.plot(data_Y[train_size: total_size + 1], y_test, 'b', label='real')

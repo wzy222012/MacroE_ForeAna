@@ -74,8 +74,8 @@ def pre_method_greyasso(df):
 # 线性回归法分析
 def pre_method_lineregre(df):
     # 初始化+定义
-    x_data = (df.iloc[:, 0])[:, np.newaxis]
-    y_data = (df.iloc[:, 1])[:, np.newaxis]
+    x_data = (df.iloc[:, 1])[:, np.newaxis]
+    y_data = (df.iloc[:, 0])[:, np.newaxis]
     lineregre = np.empty((2, 1), dtype=float)
 
     # 计算线性回归系数
@@ -101,11 +101,11 @@ def pre_quantify_EnergySum(csv_name, type):
 
     # 代入线性回归函数
     for i in range(0, line):
-        data[i] = linereg.loc['斜率'] * df.iloc[i, 0] + linereg.loc['截距']
+        data[i] = linereg.loc['斜率'] * df.iloc[i, 1] + linereg.loc['截距']
 
     # 百分值化
     for i in range(0, line):
-        data[i] /= df.iloc[i, 1]
+        data[i] /= df.iloc[i, 0]
     # print(data)
     data /= max(data) / 100
     # for i in range(0, line):
