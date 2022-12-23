@@ -41,7 +41,7 @@ def FOREWARN_main():
 
 # 主函数
 if __name__ == '__main__':
-    choice = 2
+    choice = 1
 
     # 多功能实现
     if choice == 1:

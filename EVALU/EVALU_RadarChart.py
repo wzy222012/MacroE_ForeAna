@@ -51,17 +51,17 @@ def plot_radar(df, df_score):
     ax.set_theta_zero_location('N')
     # 设置雷达图的坐标刻度范围
     ax.set_rlim(40, 100)
-    ax.set_title("中国宏观经济评估雷达图", x=0.5, y=1.15)
+    ax.set_title("浙江省宏观经济评估雷达图", x=0.5, y=1.15)
     ax.legend(df.index, bbox_to_anchor=[0, 1.25])
 
     # 柱状图
     bx = plt.subplot(122)
     bx.bar(df_score.index, df_score.iloc[:, 0], color='green')
-    bx.set_ylim(60, 85)
-    bx.set_xticks(range(2001, 2016, 2))
+    bx.set_ylim(70, 100)
+    bx.set_xticks(range(2010, 2020))
     bx.set_xlabel("年份")
     bx.set_ylabel("得分")
-    bx.set_title("中国经济评估综合得分")
+    bx.set_title("浙江省经济评估综合得分")
     for x, y in zip(df_score.index, df_score.iloc[:, 0]):
         plt.text(x, y, '%.2f' % y, ha='center', va='bottom', fontsize=6)
     print(df_score)

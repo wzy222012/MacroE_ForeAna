@@ -95,30 +95,65 @@ def pre_quantify_EnergySum(csv_name, type):
     # 导入数据 初始化
     df = pre_import(csv_name)
     # print(df)
-    linereg = pre_method_lineregre(df.copy())
+    # linereg = pre_method_lineregre(df.copy())
+    # line = df.shape[0]
+    # data = np.zeros((line, 1))
+    #
+    # # 代入线性回归函数
+    # for i in range(0, line):
+    #     data[i] = linereg.loc['斜率'] * df.iloc[i, 1] + linereg.loc['截距']
+    #
+    # # 百分值化
+    # for i in range(0, line):
+    #     data[i] /= df.iloc[i, 0]
+    # # print(data)
+    # data /= max(data) / 100
     line = df.shape[0]
+    data_sum = df.iloc[:, 1]
     data = np.zeros((line, 1))
 
-    # 代入线性回归函数
-    for i in range(0, line):
-        data[i] = linereg.loc['斜率'] * df.iloc[i, 1] + linereg.loc['截距']
+    percon_max = max(data_sum)
+    percon_min = min(data_sum)
 
-    # 百分值化
     for i in range(0, line):
-        data[i] /= df.iloc[i, 0]
-    # print(data)
-    data /= max(data) / 100
-    # for i in range(0, line):
-    #     data[i] = data[i] / data_max * 40 + 60
-    # if type == 1:
-    #     data = (data - 70) * 2.5 + 70
-    # elif type == 2:
-    #     data = (data - 70) * 1.5 + 70
-    # elif type == 3:
-    #     data = (data - 60) * 2 + 60
+        data[i] = (data_sum.iloc[i] - percon_min) / (percon_max - percon_min) * 30 + 60
 
     evalu_EnerSum = pd.DataFrame(data, index=df.index, columns=[df.columns[1]])
     return evalu_EnerSum
+
+# 人均能源消费指标
+def pre_quantify_EnerPercon(csv_name):
+    df = pre_import(csv_name)
+    line = df.shape[0]
+    data_percon = df.iloc[:, 1]
+    data = np.zeros((line, 1))
+
+    percon_max = max(data_percon)
+    percon_min = min(data_percon)
+
+    for i in range(0, line):
+        data[i] = (data_percon.iloc[i] - percon_min) / (percon_max - percon_min) * 30 + 60
+    evalu_EnerPercon = pd.DataFrame(data, index=df.index, columns=[df.columns[1]])
+    return evalu_EnerPercon
+
+def pre_quantify_EnerInte(csv_name):
+    df = pre_import(csv_name)
+    line = df.shape[0]
+    column = df.shape[1]
+    data_percon = df.iloc[:, 0]
+    data = np.zeros((line, 1))
+
+    for i in range(0, line):
+        data_percon.iloc[i] = 1 / data_percon.iloc[i]
+
+    percon_max = max(data_percon)
+    percon_min = min(data_percon)
+
+    for i in range(0, line):
+        data[i] = (data_percon.iloc[i] - percon_min) / (percon_max - percon_min) * 30 + 60
+
+    evalu_EnerInte = pd.DataFrame(data, index=df.index, columns=[df.columns[0]])
+    return evalu_EnerInte
 
 # 能源消费结构指标
 def pre_quantify_EnergyMix(csv_name):
@@ -138,7 +173,7 @@ def pre_quantify_EnergyMix(csv_name):
         for j in range(1, column):
             score_ene += df.iloc[i, j] * greyasso.iloc[j - 1]
         evalu_EnerMix[i] = score_ene / df.iloc[i, 1] * 100
-    evalu_EnerMix = (evalu_EnerMix - 60) * 2.5 + 60
+    # evalu_EnerMix = (evalu_EnerMix - 60) * 2.5 + 60
     # print(evalu_EnerMix)
 
     # 形式化一下
@@ -149,7 +184,7 @@ def pre_quantify_EnergyMix(csv_name):
 # 能源消费弹性系数
 def pre_quantify_EnergyCon(csv_name):
     df = pre_import(csv_name)
-    df_temp = pow(1/df.iloc[:, 0], 0.2)
+    df_temp = pow(1/df.iloc[:, 0], 0.05)
     df_temp *= 100 / max(df_temp)
 
     evalu_EnerCon = pd.DataFrame(df_temp, index=df.index, columns=[df.columns[0]])
@@ -159,15 +194,16 @@ def pre_quantify_EnergyCon(csv_name):
 # 各个指标合成指定的格式Dataframe
 def pre_quantify_Mix():
     # 获取各个指标
-    evalu_EnerUse = pre_quantify_EnergySum('./data/EnergyUse.csv', 1)
-    evalu_EnerPro = pre_quantify_EnergySum('./data/EnergyPro.csv', 2)
-    evalu_EnerInv = pre_quantify_EnergySum('./data/EnergyInv.csv', 3)
-    evalu_EnerCon = pre_quantify_EnergyCon('./data/EnergyCon.csv')
-    evalu_EnerMix = pre_quantify_EnergyMix('./data/EnergyMix.csv')
+    evalu_EnerUse = pre_quantify_EnergySum('./data1/EnergyUse.csv', 1)
+    evalu_EnerPro = pre_quantify_EnerPercon('./data1/EnergyPercon.csv')
+    evalu_EnerInv = pre_quantify_EnerInte('./data1/EnergyPergdp.csv')
+    evalu_EnerCon = pre_quantify_EnergyCon('./data1/EnergyCon.csv')
+    evalu_EnerMix = pre_quantify_EnergyMix('./data1/EnergyMix.csv')
 
     # 初始化
     length = evalu_EnerMix.shape[0]
-    evalu_score = pd.DataFrame(np.zeros((length, 1)), index=range(2015, 2000, -1))
+    evalu_score = pd.DataFrame(np.zeros((length, 1)), index=range(2019, 2009, -1))
+    # evalu_score = pd.DataFrame(np.zeros((length, 1)), index=range(2015, 2000, -1))
 
     # 合并
     evalu_score = pd.merge(evalu_score, evalu_EnerUse, left_index=True, right_index=True)
