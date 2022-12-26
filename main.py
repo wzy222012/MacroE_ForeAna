@@ -24,6 +24,7 @@ from FORECAST.DBN_revised import forecast_main
 # 评估主函数
 def EVALU_main():
     evalu_all = pre_quantify_Mix()
+    print(evalu_all)
     data2 = weight_add(evalu_all)
     plot_radar(evalu_all.iloc[0:8, :], data2)
     # plot_radar(evalu_all, data2)
