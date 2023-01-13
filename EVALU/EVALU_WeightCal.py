@@ -170,7 +170,7 @@ def weight_comb(df):
 def weight_add(df):
     # 获取数据 权值
     weight_mix = weight_comb(df)
-    print(weight_mix)
+    weight_mix.to_excel('./data1/weight_mix.xlsx')
     line = df.shape[0]
     column = df.shape[1]
     df_mix = np.zeros(line)

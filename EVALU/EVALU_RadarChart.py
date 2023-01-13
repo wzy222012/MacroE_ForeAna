@@ -57,8 +57,8 @@ def plot_radar(df, df_score):
     # 柱状图
     bx = plt.subplot(122)
     bx.bar(df_score.index, df_score.iloc[:, 0], color='green')
-    bx.set_ylim(70, 100)
-    bx.set_xticks(range(2010, 2020))
+    bx.set_ylim(65, 90)
+    bx.set_xticks(range(2010, 2021))
     bx.set_xlabel("年份")
     bx.set_ylabel("得分")
     bx.set_title("浙江省经济评估综合得分")

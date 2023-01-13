@@ -91,9 +91,7 @@ def pre_method_lineregre(df):
 '''------------------------------------------能源指标量化计算函数------------------------------------------------'''
 
 # 能耗指标1\能源生产指标2\能源投资总量3
-def pre_quantify_EnergySum(csv_name, type):
-    # 导入数据 初始化
-    df = pre_import(csv_name)
+def pre_quantify_EnergySum(df, type):
     # print(df)
     # linereg = pre_method_lineregre(df.copy())
     # line = df.shape[0]
@@ -122,8 +120,7 @@ def pre_quantify_EnergySum(csv_name, type):
     return evalu_EnerSum
 
 # 人均能源消费指标
-def pre_quantify_EnerPercon(csv_name):
-    df = pre_import(csv_name)
+def pre_quantify_EnerPercon(df):
     line = df.shape[0]
     data_percon = df.iloc[:, 1]
     data = np.zeros((line, 1))
@@ -136,8 +133,7 @@ def pre_quantify_EnerPercon(csv_name):
     evalu_EnerPercon = pd.DataFrame(data, index=df.index, columns=[df.columns[1]])
     return evalu_EnerPercon
 
-def pre_quantify_EnerInte(csv_name):
-    df = pre_import(csv_name)
+def pre_quantify_EnerInte(df):
     line = df.shape[0]
     column = df.shape[1]
     data_percon = df.iloc[:, 0]
@@ -156,9 +152,8 @@ def pre_quantify_EnerInte(csv_name):
     return evalu_EnerInte
 
 # 能源消费结构指标
-def pre_quantify_EnergyMix(csv_name):
+def pre_quantify_EnergyMix(df):
     # 导入数据 初始化
-    df = pre_import(csv_name)
     line = df.shape[0]
     column = df.shape[1]
     evalu_EnerMix = np.zeros((line, 1))
@@ -172,7 +167,7 @@ def pre_quantify_EnergyMix(csv_name):
         score_ene = 0
         for j in range(1, column):
             score_ene += df.iloc[i, j] * greyasso.iloc[j - 1]
-        evalu_EnerMix[i] = score_ene / df.iloc[i, 1] * 100
+        evalu_EnerMix[i] = score_ene / df.iloc[i, 1] * 65
     # evalu_EnerMix = (evalu_EnerMix - 60) * 2.5 + 60
     # print(evalu_EnerMix)
 
@@ -182,27 +177,35 @@ def pre_quantify_EnergyMix(csv_name):
     return evalu_EnerMix
 
 # 能源消费弹性系数
-def pre_quantify_EnergyCon(csv_name):
-    df = pre_import(csv_name)
+def pre_quantify_EnergyCon(df):
     df_temp = pow(1/df.iloc[:, 0], 0.05)
-    df_temp *= 100 / max(df_temp)
+    df_temp *= 90 / max(df_temp)
 
     evalu_EnerCon = pd.DataFrame(df_temp, index=df.index, columns=[df.columns[0]])
     return evalu_EnerCon
 '''-------------------------------------------能源指标合并函数------------------------------------------------'''
 
 # 各个指标合成指定的格式Dataframe
-def pre_quantify_Mix():
+def pre_quantify_Mix(csv_Use, csv_Percon, csv_Pergdp, csv_Con, csv_Mix):
+    '''
+    输入参数：对应数据
+    :param csv_Use:总能源消费量
+    :param csv_Percon:人均能耗
+    :param csv_Pergdp:能源强度
+    :param csv_Con:能源消费弹性系数
+    :param csv_Mix:能源消费结构
+    :return:各个指标量化值
+    '''
     # 获取各个指标
-    evalu_EnerUse = pre_quantify_EnergySum('./data1/EnergyUse.csv', 1)
-    evalu_EnerPro = pre_quantify_EnerPercon('./data1/EnergyPercon.csv')
-    evalu_EnerInv = pre_quantify_EnerInte('./data1/EnergyPergdp.csv')
-    evalu_EnerCon = pre_quantify_EnergyCon('./data1/EnergyCon.csv')
-    evalu_EnerMix = pre_quantify_EnergyMix('./data1/EnergyMix.csv')
+    evalu_EnerUse = pre_quantify_EnergySum(csv_Use, 1)
+    evalu_EnerPro = pre_quantify_EnerPercon(csv_Percon)
+    evalu_EnerInv = pre_quantify_EnerInte(csv_Pergdp)
+    evalu_EnerCon = pre_quantify_EnergyCon(csv_Con)
+    evalu_EnerMix = pre_quantify_EnergyMix(csv_Mix)
 
     # 初始化
     length = evalu_EnerMix.shape[0]
-    evalu_score = pd.DataFrame(np.zeros((length, 1)), index=range(2019, 2009, -1))
+    evalu_score = pd.DataFrame(np.zeros((length, 1)), index=range(2009+length, 2009, -1))
     # evalu_score = pd.DataFrame(np.zeros((length, 1)), index=range(2015, 2000, -1))
 
     # 合并
