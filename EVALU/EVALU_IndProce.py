@@ -157,17 +157,15 @@ def pre_quantify_EnergyMix(df):
     line = df.shape[0]
     column = df.shape[1]
     evalu_EnerMix = np.zeros((line, 1))
-    # print(df)
 
     # 计算各个能源部分与GDP的关联度
     greyasso = pre_method_greyasso(df.copy())
-    # print(greyasso)
     # 计算能源经济结构得分
     for i in range(line):
         score_ene = 0
         for j in range(1, column):
             score_ene += df.iloc[i, j] * greyasso.iloc[j - 1]
-        evalu_EnerMix[i] = score_ene / df.iloc[i, 1] * 65
+        evalu_EnerMix[i] = df.iloc[i, 0] / score_ene * 6 + 60
     # evalu_EnerMix = (evalu_EnerMix - 60) * 2.5 + 60
     # print(evalu_EnerMix)
 

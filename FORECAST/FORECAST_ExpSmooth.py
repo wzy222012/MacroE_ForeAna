@@ -60,13 +60,15 @@ def fore_expsmooth_3(data_primary, para_expsmooth, para_time):
     pre_next_year = a_triple[-1] + b_triple[-1] * 1 + c_triple[-1] * (1 ** 2)
     pre_next_two_year = a_triple[-1] + b_triple[-1] * 2 + c_triple[-1] * (2 ** 2)
     insert_year = np.array([pre_next_year, pre_next_two_year])
-    s_pre_triple = np.insert(s_pre_triple, len(s_pre_triple), values=np.array([pre_next_year, pre_next_two_year]),
+    print(s_pre_triple, data_primary)
+    s_pre_triple = np.insert(s_pre_triple, len(s_pre_triple), values=insert_year,
                              axis=0)
     s_pre_triple[0] = data_primary[0]
 
-    # plt.plot(range(2010, 2020), data_primary, 'b', label='real')
-    # plt.plot(range(2010, 2022), s_pre_triple, 'brown', label='predict')
-    # plt.show()
+    plt.plot(range(2010, 2020), data_primary, 'b', label='real')
+    plt.plot(range(2010, 2022), s_pre_triple, 'brown', label='predict')
+    plt.legend(['real', 'predict'], bbox_to_anchor=[0.4, 0.5])
+    plt.show()
 
     return data_exp1, data_exp2, data_exp3, s_pre_double, s_pre_triple
 
@@ -98,7 +100,7 @@ def fore_process(data_primary):
     :return:返回指数平滑后的预测值
     '''
     data_sec = np.array(data_primary)[::-1]
-    data_exp1, data_exp2, data_fin, s_pre_double, s_pre_triple = fore_expsmooth_3(data_sec, 0.5, 1)
+    data_exp1, data_exp2, data_fin, s_pre_double, s_pre_triple = fore_expsmooth_3(data_sec, 0.7, 1)
     # fore_plot(data_sec, data_exp1, data_exp2, data_fin, s_pre_triple)
     # print(s_pre_triple)
     return s_pre_triple
@@ -134,13 +136,11 @@ def fore_main(csv_Use, csv_Percon, csv_Pergdp, csv_Con, csv_Mix):
         data_fore = np.append(csv_Pergdp.iloc[:, i][::-1], fore_process(csv_Pergdp.iloc[:, i])[-2:])
         csv_Pergdp_re.iloc[:, i] = data_fore
 
-    print(csv_Con)
     length = (csv_Con.shape[0] + 2, csv_Con.shape[1])
     csv_Con_re = pd.DataFrame(np.zeros(length), index=range(2010, 2022), columns=csv_Con.columns)
     for i in range(0, csv_Con.shape[1]):
         data_fore = np.append(csv_Con.iloc[:, i][::-1], fore_process(csv_Con.iloc[:, i])[-2:])
         csv_Con_re.iloc[:, i] = data_fore
-    print(csv_Con_re)
 
     length = (csv_Mix.shape[0] + 2, csv_Mix.shape[1])
     csv_Mix_re = pd.DataFrame(np.zeros(length), index=range(2010, 2022), columns=csv_Mix.columns)

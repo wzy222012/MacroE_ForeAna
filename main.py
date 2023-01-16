@@ -38,7 +38,8 @@ def EVALU_main():
     # 综合值
     data2 = weight_add(evalu_all)
     data2.to_excel('./data1/data2.xlsx')
-    plot_radar(evalu_all.iloc[0:8, :], data2)
+    # plot_radar(evalu_all.iloc[0:8, :], data2)
+    plot_radar(evalu_all.iloc[-8:, :], data2)
     # plot_radar(evalu_all, data2)
     return evalu_all, data2
 
@@ -46,15 +47,16 @@ def EVALU_main():
 # 预测主函数
 def FORECAST_main():
     # print(pre_import('./data1/EnergyPergdp.csv'))
-    csv_Use_re, csv_Percon_re, csv_Pergdp_re, csv_Con_re, csv_Mix_re = fore_main(pre_import('./data1/EnergyUse.csv'),
-                                                                                 pre_import('./data1/EnergyPercon.csv'),
-                                                                                 pre_import('./data1/EnergyPergdp.csv'),
-                                                                                 pre_import('./data1/EnergyCon.csv'),
-                                                                                 pre_import('./data1/EnergyMix.csv'))
-    evalu_fore_all = pre_quantify_Mix(csv_Use_re, csv_Percon_re, csv_Pergdp_re, csv_Con_re, csv_Mix_re)
-    print(evalu_fore_all)
-    data3 = weight_add(evalu_fore_all)
-    plot_radar(evalu_fore_all.iloc[-8:, :], data3)
+    forecast_main()
+    # csv_Use_re, csv_Percon_re, csv_Pergdp_re, csv_Con_re, csv_Mix_re = fore_main(pre_import('./data1/EnergyUse.csv'),
+    #                                                                              pre_import('./data1/EnergyPercon.csv'),
+    #                                                                              pre_import('./data1/EnergyPergdp.csv'),
+    #                                                                              pre_import('./data1/EnergyCon.csv'),
+    #                                                                              pre_import('./data1/EnergyMix.csv'))
+    # evalu_fore_all = pre_quantify_Mix(csv_Use_re, csv_Percon_re, csv_Pergdp_re, csv_Con_re, csv_Mix_re)
+    # print(evalu_fore_all)
+    # data3 = weight_add(evalu_fore_all)
+    # plot_radar(evalu_fore_all.iloc[-8:, :], data3)
     return
 
 

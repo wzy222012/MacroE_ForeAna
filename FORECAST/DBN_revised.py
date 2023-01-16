@@ -151,7 +151,7 @@ def forecast_main():
     len_Test = -(dt.datetime.strptime(test_start, '%Y-%m-%d') - dt.datetime.strptime(test_end, '%Y-%m-%d')).days
 
     # 导入数据
-    data1 = pd.read_excel('./data/test1.xlsx')
+    data1 = pd.read_csv('./data1/EnergyUse.csv')
     # data1 = data1.set_index('Unnamed: 0')
     # data2 = pd.read_excel('./data/test2.xlsx')
     # # data2 = data2.set_index('Unnamed: 0')
@@ -162,7 +162,7 @@ def forecast_main():
     # data4 = data4.set_index('Unnamed: 0')
     # data_Y = pd.read_excel('D:/研究生资料/供电服务/供电服务2021/数据/工单全业务每日汇总统计3/标签_3340140.xlsx')
 
-    data_la1 = data1.iloc[:, 6]
+    data_la1 = data1.iloc[:, 2]
     # data_la2 = data2.iloc[:, 6]
     # data_la3 = data3.iloc[:, 6]
     # data_la4 = data4.iloc[:, 6]
@@ -186,10 +186,12 @@ def forecast_main():
 
     # 各种数据长度计算
     total_size = np.size(data_Y)
-    exchange_time = 5                                   # 交叉验证份数
+    exchange_time = 3                                   # 交叉验证份数
     exchange_size = int(total_size / exchange_time)     # 交叉验证测试集长度
     train_size = total_size - exchange_size             # 交叉验证训练集长度
-    rolling_size = 12                                   # 滚动长度
+    rolling_size = 2                                    # 滚动长度
+    print(train_size)
+
 
     for k in range(exchange_time):
         # 新建训练集X_train 和 测试集X_test
@@ -219,6 +221,8 @@ def forecast_main():
         x_test = x_test.T
         y_test = y_test.T
 
+        print(x_train, y_train, x_test, y_test)
+
         # 对模型进行训练和保存
         #     trained_model, scaler = multioutput(df.values, 0.9, 192, 1, 200, 300, 50)
         model_train(x_train, y_train, x_test, y_test)
@@ -232,6 +236,7 @@ def forecast_main():
         predic += pre
         pre_max = np.max(pre)
     predic /= exchange_time
+    print(predic, pre, y_test)
     # for i in range(total_size - train_size):
     #     if pre[i] > pre_max / 2:
     #         pre[i] = 1
